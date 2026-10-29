@@ -1,0 +1,12 @@
+2026-10-22T15:10:00.000000+00:00 target sshd-session[4200]: Invalid user admin from 203.0.113.50 port 52000
+2026-10-22T15:10:00.000000+00:00 target sshd-session[4200]: Failed password for invalid user admin from 203.0.113.50 port 52000 ssh2
+2026-10-22T15:10:20.000000+00:00 target sshd-session[4201]: Invalid user oracle from 203.0.113.50 port 52001
+2026-10-22T15:10:20.000000+00:00 target sshd-session[4201]: Failed password for invalid user oracle from 203.0.113.50 port 52001 ssh2
+2026-10-22T15:10:40.000000+00:00 target sshd-session[4202]: Invalid user postgres from 203.0.113.50 port 52002
+2026-10-22T15:10:40.000000+00:00 target sshd-session[4202]: Failed password for invalid user postgres from 203.0.113.50 port 52002 ssh2
+2026-10-22T15:11:00.000000+00:00 target sshd-session[4203]: Invalid user guest from 203.0.113.50 port 52003
+2026-10-22T15:11:00.000000+00:00 target sshd-session[4203]: Failed password for invalid user guest from 203.0.113.50 port 52003 ssh2
+2026-10-22T15:11:20.000000+00:00 target sshd-session[4204]: Invalid user deploy from 203.0.113.50 port 52004
+2026-10-22T15:11:20.000000+00:00 target sshd-session[4204]: Failed password for invalid user deploy from 203.0.113.50 port 52004 ssh2
+2026-10-22T15:11:40.000000+00:00 target sshd-session[4205]: Invalid user test from 203.0.113.50 port 52005
+2026-10-22T15:11:40.000000+00:00 target sshd-session[4205]: Failed password for invalid user test from 203.0.113.50 port 52005 ssh2

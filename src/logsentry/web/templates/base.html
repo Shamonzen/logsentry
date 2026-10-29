@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {# htmx would otherwise inject an inline <style>, which the CSP blocks #}
+  <meta name="htmx-config" content='{"includeIndicatorStyles": false}'>
+  <title>{% block title %}LogSentry{% endblock %}</title>
+  <link rel="stylesheet" href="{{ asset('style.css') }}">
+  {# not deferred: sets the saved theme before the page paints #}
+  <script src="{{ asset('theme.js') }}"></script>
+  <script src="{{ asset('htmx.min.js') }}" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">LogSentry</a>
+    <nav>
+      <a href="/">Alerts</a>
+      <a href="/campaigns">Campaigns</a>
+    </nav>
+    <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch between light and dark theme">◐ Theme</button>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+</body>
+</html>

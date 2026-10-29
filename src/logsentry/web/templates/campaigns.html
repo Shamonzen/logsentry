@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Campaigns · LogSentry{% endblock %}
+{% block content %}
+<h1>Campaigns</h1>
+<p class="muted">Alerts from IPs in the same /24 (IPv6: /64) that start less than 30 min (<code>campaign_gap_seconds</code>) after the campaign's latest activity, with at least 2 distinct IPs. An IP that comes back later, after a longer quiet spell, is not part of it. Click a campaign to see its IPs.</p>
+{% for c in campaigns %}
+<details class="campaign" id="c{{ c.id }}"{% if c.id == open %} open{% endif %}>
+  <summary>
+    <span class="sev sev-{{ c.severity }}">{{ c.severity }}</span>
+    <strong>#{{ c.id }}</strong>
+    <span class="mono">{{ c.subnet }}</span>
+    <span>{{ c.ip_count }} IPs · {{ c.alert_count }} alerts · {{ c.events }} events</span>
+    <span class="muted">active <span class="mono">{{ c.first_seen | ts }} → {{ c.last_seen | ts }}</span> ({{ duration(c.first_seen, c.last_seen) }})</span>
+    <span>{% for name in c.categories %}<span class="tag">{{ name }}</span>{% endfor %}</span>
+  </summary>
+  <table>
+    <thead><tr><th>Source IP</th><th>Worst severity</th><th class="num">Alerts</th><th class="num">Events</th><th></th></tr></thead>
+    <tbody>
+    {% for ip in c.ips %}
+      <tr>
+        <td class="mono">{{ ip.src_ip }}</td>
+        <td><span class="sev sev-{{ ip.severity }}">{{ ip.severity }}</span></td>
+        <td class="num">{{ ip.alerts }}</td>
+        <td class="num">{{ ip.events }}</td>
+        <td><a href="/?ip={{ ip.src_ip }}">alerts →</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p><a href="/?campaign={{ c.id }}">All alerts in campaign #{{ c.id }} →</a></p>
+</details>
+{% else %}
+<p class="empty">No campaigns: no /24 had 2 or more IPs attacking at the same time.</p>
+{% endfor %}
+{% endblock %}

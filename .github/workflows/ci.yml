@@ -1,0 +1,57 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.12"
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
+
+  lab-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: cp .env.example .env
+      - run: docker compose up -d --build --wait
+      # One sshd line and one nginx line, generated on the target itself (no attack tooling).
+      - run: |
+          # A user that doesn't exist, so sshd logs "Invalid user" ("nobody" is a real account).
+          docker compose exec -T target ssh -o BatchMode=yes -o StrictHostKeyChecking=no smoke-nouser@127.0.0.1 || true
+          docker compose exec -T target bash -c 'printf "GET /smoke HTTP/1.0\r\n\r\n" > /dev/tcp/127.0.0.1/80'
+          sleep 2
+          docker compose exec -T target grep -q 'Invalid user smoke-nouser' /var/log/lab/auth.log
+          docker compose exec -T target grep -q 'GET /smoke' /var/log/lab/nginx_access.log
+          curl -fsS http://127.0.0.1:8000/api/alerts
+      - if: failure()
+        run: docker compose logs
+      - if: always()
+        run: docker compose down -v
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.12"
+      - run: uv sync --locked
+      - run: cp .env.example .env
+      - run: make lab
+      - run: make attack
+      - run: uv run pytest -m e2e
+      - if: failure()
+        run: docker compose logs
+      - if: always()
+        run: docker compose down -v

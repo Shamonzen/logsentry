@@ -1,0 +1,49 @@
+# Detection thresholds. Validated on load: unknown keys and unknown rules are rejected.
+
+# After a rule alerts for an IP, further alerts from that rule for that IP are
+# suppressed for this long (event time), so one attack produces one alert.
+cooldown_seconds: 300
+
+# `ingest --error-log`: Apache error_log lines from the same IP up to this many
+# seconds after a file-inclusion request count as its outcome (PHP fetching a
+# remote file can take a few seconds).
+outcome_window_seconds: 10
+
+# Alerts from IPs in one /24 (IPv6: /64) that are less than this far apart form a
+# campaign. Only groups with at least 2 distinct IPs count.
+campaign_gap_seconds: 1800
+
+rules:
+  ssh_bruteforce:      # T1110.001 Password Guessing
+    enabled: true
+    threshold: 10      # failed logins from one IP...
+    window_seconds: 60 # ...within this many seconds
+
+  password_spray:      # T1110.003 Password Spraying
+    enabled: true
+    threshold: 5       # different user names failing from one IP...
+    window_seconds: 300
+
+  success_after_failures:  # T1078 Valid Accounts (after T1110)
+    enabled: true
+    threshold: 5       # failures from one IP before a successful login...
+    window_seconds: 600
+
+  web_scan:            # T1595.003 Wordlist Scanning
+    enabled: true
+    threshold: 20      # 404 responses from one IP...
+    window_seconds: 60
+
+  web_attack:          # one alert per category: SQL injection, XSS, path traversal, ...
+    enabled: true
+    patterns_file: web_patterns.yaml  # categories, ATT&CK IDs, severities and regexes
+    group_gap_seconds: 1800  # one alert per IP while its attacks are < 30 min apart
+
+  web_login_bruteforce:  # T1110 Brute Force
+    enabled: true
+    threshold: 10      # POSTs to a login page from one IP...
+    window_seconds: 60
+    login_paths:       # case-insensitive regexes on the URL path
+      - 'wp-login\.php$'
+      - '/xmlrpc\.php$'
+      - '/(?:user/|admin/|account/)?(?:login|signin|logon|auth)(?:\.\w+)?/?$'

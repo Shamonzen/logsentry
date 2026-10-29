@@ -1,0 +1,150 @@
+# Web attack categories for the web_attack rule. Validated on load: a bad regex, an
+# unknown field or an unknown severity stops LogSentry from starting.
+#
+# A web alert covers one IP's attacks and lists every category they fall in. Each category
+# has its own ATT&CK technique and base severity, and gets a result in the alert:
+#   succeeded  proven by the Apache error_log, or every request likely worked   base + 1
+#   mixed      some requests likely worked, none proven                         base
+#   blocked    none worked                                                       base - 1
+# "Likely worked" = a 2xx whose size differs from that page's usual response. The alert
+# takes its highest category (kept within low..critical), +1 for an internal source.
+# `cwe` names the weakness a category exploits. `follow_on` lists the techniques its
+# success leads to (T1190 → T1059, ...); one with `when` is added only if a request that
+# worked matches that regex.
+#
+# Patterns (Python regexes, always case-insensitive) look at one field:
+#   request     the URL path and query, percent-decoded twice (catches double encoding)
+#   user_agent  the User-Agent header
+# One field per pattern keeps each one a single Sigma selection (field|re: ...).
+# Log content is attacker-controlled: avoid nested quantifiers like (a+)+ (ReDoS).
+
+categories:
+  sqli:
+    name: SQL injection
+    technique_id: T1190
+    technique_name: Exploit Public-Facing Application
+    tactic: Initial Access
+    severity: medium
+    cwe: CWE-89
+    patterns:
+      - {id: union_select, field: request, regex: '\bunion(?:\s|/\*\*/)+(?:all(?:\s|/\*\*/)+)?select\b'}
+      - {id: quote_or_and, field: request, regex: '''\s*(?:or|and)\s+[''"]?\w+[''"]?\s*(?:=|like\b)'}
+      - {id: tautology, field: request, regex: '\b(?:or|and)\s+\d+\s*=\s*\d+'}
+      - {id: time_delay, field: request, regex: '\b(?:sleep|benchmark|pg_sleep)\s*\('}
+      - {id: waitfor_delay, field: request, regex: '\bwaitfor\s+delay\b'}
+      - {id: information_schema, field: request, regex: '\binformation_schema\b'}
+      - {id: comment_after_quote, field: request, regex: '[''")]\s*(?:--|#)'}
+      - {id: stacked_query, field: request, regex: ';\s*(?:drop|insert|update|delete|select)\s'}
+
+  xss:
+    name: XSS
+    technique_id: T1190
+    technique_name: Exploit Public-Facing Application
+    tactic: Initial Access
+    severity: medium
+    cwe: CWE-79
+    patterns:
+      - {id: script_tag, field: request, regex: '<\s*script\b'}
+      - {id: html_tag, field: request, regex: '<\s*(?:svg|img|iframe|body)\b'}
+      - {id: event_handler, field: request, regex: '\bon(?:error|load|mouseover|focus|click)\s*='}
+      - {id: javascript_uri, field: request, regex: '\bjavascript\s*:'}
+      - {id: alert_call, field: request, regex: '\b(?:alert|prompt|confirm)\s*\('}
+
+  path_traversal:
+    name: Path traversal / LFI
+    technique_id: T1190
+    technique_name: Exploit Public-Facing Application
+    tactic: Initial Access
+    severity: medium
+    cwe: CWE-22
+    follow_on:  # added only when the category succeeded
+      - {technique_id: T1083, name: File and Directory Discovery, tactic: Discovery}
+      - technique_id: T1552.001
+        name: "Unsecured Credentials: Credentials In Files"
+        tactic: Credential Access
+        when: '/\.env\b|wp-config\.php|/config\.php|id_rsa|/etc/shadow|\.htpasswd'
+    patterns:
+      - {id: dot_dot_slash, field: request, regex: '\.\.[/\\]'}
+      - {id: encoded_dot_dot_slash, field: request, regex: '\.\.%(?:2f|5c)'}  # still encoded after 2 decodes
+      - {id: system_file, field: request, regex: '/etc/(?:passwd|shadow|hosts)\b|\b(?:boot|win)\.ini\b'}
+      - {id: php_wrapper, field: request, regex: '\bphp://'}
+      - {id: file_uri, field: request, regex: '\bfile://'}
+
+  # not a separate ATT&CK technique, but kept apart: `ingest --error-log` judges RFI outcomes
+  rfi:
+    name: Remote file inclusion
+    technique_id: T1190
+    technique_name: Exploit Public-Facing Application
+    tactic: Initial Access
+    severity: high  # runs the attacker's code: a success is critical
+    cwe: CWE-98
+    follow_on:
+      - {technique_id: T1105, name: Ingress Tool Transfer, tactic: Command and Control}
+      # only the URL is logged, not the included file: judged by the shell's name or by
+      # PHP execution functions in the request
+      - technique_id: T1505.003
+        name: "Server Software Component: Web Shell"
+        tactic: Persistence
+        when: '/(?:shell|cmd|c99|r57|wso|b374k|webshell|backdoor|alfa|indoxploit)[\w.-]*\.(?:php\d?|txt)\b|\b(?:system|exec|passthru|shell_exec|eval)\s*\('
+    patterns:
+      # a parameter holding a URL to a script; plain redirect targets like next=https://x/ don't match
+      - {id: remote_script_param, field: request, regex: '=\s*(?:https?|ftp)://[^&\s]*\.(?:php\d?|txt|inc|pl|cgi|aspx?)\b'}
+
+  command_injection:
+    name: Command injection
+    technique_id: T1190
+    technique_name: Exploit Public-Facing Application
+    tactic: Initial Access
+    severity: high  # a success is critical
+    cwe: CWE-78
+    follow_on:
+      - {technique_id: T1059, name: Command and Scripting Interpreter, tactic: Execution}
+      - technique_id: T1059.004
+        name: "Command and Scripting Interpreter: Unix Shell"
+        tactic: Execution
+        when: '(?:;|\||&&|\$\(|`)\s*(?:id|whoami|uname|cat|ls|pwd|wget|curl|nc|bash|sh|ping)\b|/bin/(?:ba)?sh\b'
+    patterns:
+      - {id: separator_command, field: request, regex: '(?:;|\||&&)\s*(?:id|whoami|uname|cat|ls|pwd|wget|curl|nc|bash|sh|ping)\b'}
+      - {id: subshell, field: request, regex: '\$\('}
+      - {id: backticks, field: request, regex: '`[\w/]'}
+      - {id: unix_shell, field: request, regex: '/bin/(?:ba)?sh\b'}
+      - {id: windows_shell, field: request, regex: '\bcmd\.exe\b'}
+
+  log4shell_shellshock:
+    name: Log4Shell / Shellshock
+    technique_id: T1190
+    technique_name: Exploit Public-Facing Application
+    tactic: Initial Access
+    severity: critical
+    patterns:
+      - {id: jndi_lookup, field: request, regex: '\$\{\s*jndi\s*:'}
+      - {id: jndi_lookup_ua, field: user_agent, regex: '\$\{\s*jndi\s*:'}
+      - {id: nested_lookup, field: request, regex: '\$\{[^}]{0,40}\$\{'}  # ${${lower:j}ndi:...}
+      - {id: nested_lookup_ua, field: user_agent, regex: '\$\{[^}]{0,40}\$\{'}
+      - {id: shellshock, field: request, regex: '\(\)\s*\{'}
+      - {id: shellshock_ua, field: user_agent, regex: '\(\)\s*\{'}
+
+  sensitive_file:
+    name: Sensitive file probing
+    technique_id: T1595.003
+    technique_name: "Active Scanning: Wordlist Scanning"
+    tactic: Reconnaissance
+    severity: low
+    patterns:
+      - {id: dotenv, field: request, regex: '/\.env\b'}
+      - {id: vcs_dir, field: request, regex: '/\.(?:git|svn|hg)(?=/|\?|$)'}
+      - {id: wp_config, field: request, regex: '\bwp-config\.php'}
+      - {id: htaccess, field: request, regex: '/\.ht(?:access|passwd)\b'}
+      - {id: web_config, field: request, regex: '/web\.config\b'}
+      - {id: phpmyadmin, field: request, regex: '/phpmyadmin\b'}
+      - {id: backup_suffix, field: request, regex: '\.(?:bak|old|orig|swp|save)(?=\?|$)'}
+      - {id: backup_archive, field: request, regex: '/(?:backup|db|database|dump|site|www)\.(?:sql|zip|tar\.gz|tgz)(?=\?|$)'}
+
+  scanner_ua:
+    name: Scanner user-agent
+    technique_id: T1595.002
+    technique_name: "Active Scanning: Vulnerability Scanning"
+    tactic: Reconnaissance
+    severity: low
+    patterns:
+      - {id: scanner_name, field: user_agent, regex: '\b(?:sqlmap|nikto|nmap|gobuster|dirbuster|wpscan|zgrab|masscan|ffuf)\b|fuzz faster u fool'}

@@ -1,0 +1,16 @@
+# Lab target: password logins on purpose, so brute force and spraying can be detected.
+Port 22
+SyslogFacility AUTH
+LogLevel INFO
+UsePAM yes
+PasswordAuthentication yes
+KbdInteractiveAuthentication no
+PermitRootLogin no
+UseDNS no
+# Let the attacker's parallel tasks connect instead of being dropped before they reach auth.
+MaxStartups 64:30:128
+MaxAuthTries 6
+# OpenSSH >= 9.8 bans a source IP after repeated auth failures. This is a deliberate victim
+# whose whole purpose is to keep accepting attacks so they can be detected, so turn it off.
+PerSourcePenalties no
+Subsystem sftp internal-sftp

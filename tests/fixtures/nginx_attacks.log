@@ -1,0 +1,7 @@
+203.0.113.9 - - [22/Oct/2026:14:10:00 +0000] "GET /static/..%2f..%2f..%2fetc/passwd HTTP/1.1" 400 157 "-" "curl/8.10.1"
+203.0.113.9 - - [22/Oct/2026:14:10:01 +0000] "GET /download?file=../../../../etc/passwd HTTP/1.1" 200 1843 "-" "curl/8.10.1"
+203.0.113.9 - - [22/Oct/2026:14:10:02 +0000] "GET /search?q=1%27%20OR%201%3D1--%20- HTTP/1.1" 200 512 "-" "curl/8.10.1"
+203.0.113.9 - - [22/Oct/2026:14:10:03 +0000] "GET /search?q=%3Cscript%3Ealert(1)%3C/script%3E HTTP/1.1" 200 512 "-" "curl/8.10.1"
+203.0.113.9 - - [22/Oct/2026:14:10:04 +0000] "GET /item?id=1%20UNION%20SELECT%20username,password%20FROM%20users HTTP/1.1" 500 157 "-" "curl/8.10.1"
+203.0.113.9 - - [22/Oct/2026:14:10:05 +0000] "GET /?q=\x22><svg/onload=alert(1)> HTTP/1.1" 200 615 "-" "\x22><script>alert(1)</script>"
+203.0.113.9 - - [22/Oct/2026:14:10:06 +0000] "\x16\x03\x01\x02\x00\x01\x00\x01\xFC\x03\x03" 400 157 "-" "-"

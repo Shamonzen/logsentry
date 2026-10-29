@@ -1,0 +1,9 @@
+Oct 22 08:59:58 web01 sshd[812]: Server listening on 0.0.0.0 port 22.
+Oct 22 09:01:12 web01 sshd[1201]: Accepted publickey for alice from 198.51.100.20 port 50122 ssh2: ED25519 SHA256:pG2bqOq0k3m5V7c1yQyF8t9xYb6w0Z1aR2s3T4u5v6w
+Oct 22 09:01:12 web01 sshd[1201]: pam_unix(sshd:session): session opened for user alice(uid=1000) by alice(uid=0)
+Oct 22 09:14:40 web01 sshd[1290]: Failed password for bob from 198.51.100.31 port 41822 ssh2
+Oct 22 09:14:46 web01 sshd[1290]: Accepted password for bob from 198.51.100.31 port 41822 ssh2
+Oct 22 09:30:03 web01 sshd[1333]: Accepted publickey for deploy from 2001:db8::10 port 60002 ssh2: RSA SHA256:Zq1x2c3v4b5n6m7a8s9d0f1g2h3j4k5l6z7x8c9v0bA
+Oct 22 09:30:05 web01 CRON[1340]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+Oct 22 10:02:17 web01 sshd[1201]: Received disconnect from 198.51.100.20 port 50122:11: disconnected by user
+Oct 22 10:02:17 web01 sshd[1201]: pam_unix(sshd:session): session closed for user alice

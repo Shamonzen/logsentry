@@ -1,0 +1,44 @@
+[project]
+name = "logsentry"
+version = "1.0.0"
+description = "Lightweight intrusion detection for SSH and nginx logs, mapped to MITRE ATT&CK"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.159.1",
+    "jinja2>=3.1.6",
+    "pydantic>=2",
+    "pyyaml>=6.0.3",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+logsentry = "logsentry.cli:main"
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.0",
+    "pytest>=8",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["uv_build>=0.8,<0.14"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# S = flake8-bandit security checks
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["e2e: needs the docker lab running (make lab)"]
+addopts = "-m 'not e2e'"

@@ -1,0 +1,8 @@
+2026-10-22T16:00:00.000000+00:00 target sshd-session[4300]: Failed password for labuser from 203.0.113.80 port 53000 ssh2
+2026-10-22T16:00:05.000000+00:00 target sshd-session[4301]: Failed password for labuser from 203.0.113.80 port 53001 ssh2
+2026-10-22T16:00:10.000000+00:00 target sshd-session[4302]: Failed password for labuser from 203.0.113.80 port 53002 ssh2
+2026-10-22T16:00:15.000000+00:00 target sshd-session[4303]: Failed password for labuser from 203.0.113.80 port 53003 ssh2
+2026-10-22T16:00:20.000000+00:00 target sshd-session[4304]: Failed password for labuser from 203.0.113.80 port 53004 ssh2
+2026-10-22T16:00:25.000000+00:00 target sshd-session[4305]: Failed password for labuser from 203.0.113.80 port 53005 ssh2
+2026-10-22T16:00:31.000000+00:00 target sshd-session[4306]: Accepted password for labuser from 203.0.113.80 port 53006 ssh2
+2026-10-22T16:00:31.000000+00:00 target sshd-session[4306]: pam_unix(sshd:session): session opened for user labuser(uid=1001) by labuser(uid=0)

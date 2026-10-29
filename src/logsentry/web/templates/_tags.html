@@ -1,0 +1,24 @@
+{# small shared pieces: attack-type tags, ATT&CK links, the result pill, the internal badge #}
+{% macro tags(a) -%}
+{% if a.results %}{% for r in a.results %}<span class="nowrap"><span class="tag res-{{ r.result }}" title="{{ r.name }}: {{ r.result }}{% if r.confidence %} ({{ r.confidence }}){% endif %}, {{ r.severity }}">{{ r.name }} <small>{{ r.result }}</small></span> {% if r.cwe %}{{ cwe(r.cwe) }}{% endif %}</span> {% endfor %}
+{%- else %}{% for name in (a.categories or [a.rule_name]) %}<span class="tag">{{ name }}</span> {% endfor %}{% endif %}
+{%- endmacro %}
+{% macro cwe(id) -%}
+<a class="tag cwe" href="{{ id | cwe_url }}" target="_blank" rel="noopener noreferrer" title="Weakness {{ id }} on cwe.mitre.org">{{ id }}</a>
+{%- endmacro %}
+{% macro technique(t) -%}
+<a class="attack" href="{{ t.id | attack_url }}" target="_blank" rel="noopener noreferrer" title="{{ t.id }} {{ t.name }} ({{ t.tactic }})">{{ t.id }}</a>
+{%- endmacro %}
+{# web alerts: "T1190 → T1105, T1083", the follow-ons only there because an attack worked #}
+{% macro attack(a) -%}
+{% if a.techniques %}<span class="chain">
+{%- for t in a.techniques if not t.follow_on %}{% if not loop.first %}, {% endif %}{{ technique(t) }}{% endfor %}
+{%- for t in a.techniques if t.follow_on %}{% if loop.first %} <span class="arrow" aria-label="led to">→</span> {% else %}, {% endif %}{{ technique(t) }}{% endfor %}</span>
+{%- else %}{% for t in a.technique_id.split(",") %}<a class="attack" href="{{ t | attack_url }}" target="_blank" rel="noopener noreferrer">{{ t.strip() }}</a> {% endfor %}{% endif %}
+{%- endmacro %}
+{% macro outcome(a) -%}
+{% if a.result %}<span class="pill out-{{ a.result }}">{{ a.result }}</span>{% if a.confidence %} <small class="muted">{{ a.confidence }}</small>{% endif %}{% else %}<span class="muted">—</span>{% endif %}
+{%- endmacro %}
+{% macro internal(a) -%}
+{% if a.internal %} <span class="badge-internal" title="RFC 1918 address: the attacker is inside the network (+1 severity)">internal</span>{% endif %}
+{%- endmacro %}

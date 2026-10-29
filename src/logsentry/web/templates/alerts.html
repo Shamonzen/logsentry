@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="strip" aria-label="Summary">
+  <div class="card">
+    <h2>Alerts</h2>
+    <p class="big">{{ summary.total }}</p>
+    <p class="sevcounts">
+      {% for s in severities | reverse %}<a href="/?severity={{ s.value }}" class="sev sev-{{ s.value }}">{{ summary.by_severity.get(s.value, 0) }} {{ s.value }}</a>{% endfor %}
+    </p>
+  </div>
+  <div class="card">
+    <h2>Campaigns</h2>
+    <p class="big"><a href="/campaigns">{{ summary.campaigns }}</a></p>
+    <p class="muted">/24 groups with 2+ attacking IPs</p>
+  </div>
+  <div class="card">
+    <h2>Top sources</h2>
+    <ol class="top">
+      {% for r in top_ips %}<li><a class="mono" href="/?ip={{ r.src_ip }}">{{ r.src_ip }}</a> <span class="muted">{{ r.events }} events</span></li>{% endfor %}
+    </ol>
+    <ol class="top subnets">
+      {% for net, events in top_subnets %}<li class="mono">{{ net }} <span class="muted">{{ events }} events</span></li>{% endfor %}
+    </ol>
+  </div>
+  <div class="card">
+    <h2>Top attack types</h2>
+    <ol class="top">
+      {% for t in summary.attack_types[:5] %}<li><a href="/?type={{ t.name | urlencode }}" class="tag">{{ t.name }}</a> <span class="muted">{{ t.alerts }} alert{{ "s" if t.alerts != 1 }}</span></li>{% endfor %}
+    </ol>
+  </div>
+</section>
+<p class="range"><strong>Data:</strong> {{ data_range }}</p>
+
+<form id="filters" class="filters" method="get" action="/" hx-get="/rows" hx-target="#rows" hx-trigger="change">
+  <label>Severity
+    <select name="severity">
+      <option value="">All</option>
+      {% for s in severities | reverse %}<option value="{{ s.value }}"{% if s.value == chosen.severity %} selected{% endif %}>{{ s.value }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Attack type
+    <select name="type">
+      <option value="">All</option>
+      {% for t in summary.attack_types %}<option value="{{ t.name }}"{% if t.name == chosen.type %} selected{% endif %}>{{ t.name }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Outcome
+    <select name="outcome">
+      <option value="">All</option>
+      {% for o in outcomes %}<option value="{{ o }}"{% if o == chosen.outcome %} selected{% endif %}>{{ o }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Campaign
+    <select name="campaign">
+      <option value="">All</option>
+      {% for c in campaigns %}<option value="{{ c.id }}"{% if c.id | string == chosen.campaign %} selected{% endif %}>#{{ c.id }} · {{ c.subnet }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Source
+    <select name="source">
+      <option value="">All</option>
+      {% for s in ("internal", "external") %}<option value="{{ s }}"{% if s == chosen.source %} selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  {% if chosen.ip %}<input type="hidden" name="ip" value="{{ chosen.ip }}"><span class="chip">IP {{ chosen.ip }} <a href="/" aria-label="Clear IP filter">×</a></span>{% endif %}
+  <noscript><button type="submit">Filter</button></noscript>
+  <a class="reset" href="/">Reset</a>
+</form>
+
+<div class="tablewrap">
+<table class="alerts">
+  <thead>
+    <tr><th>Severity</th><th>Attack type(s)</th><th>ATT&amp;CK</th><th>Source IP</th><th>Campaign</th><th>Outcome</th><th class="num">Events</th><th>First seen</th><th>Last seen</th></tr>
+  </thead>
+  <tbody id="rows" hx-get="/rows" hx-include="#filters" hx-trigger="every 5s">
+    {% include "_rows.html" %}
+  </tbody>
+</table>
+</div>
+<p class="muted legend">Outcome, per attack type and overall: <b>succeeded</b> = proven by the Apache error_log (<i>confirmed</i>), or every request got a 2xx whose size differs from that page's usual response (<i>likely</i>); <b>mixed</b> = only some did, nothing proven; <b>blocked</b> = none did. Severity = the attack type's base +1 if it succeeded, −1 if blocked; the alert takes the highest, +1 for an <span class="badge-internal">internal</span> source.</p>
+{% endblock %}

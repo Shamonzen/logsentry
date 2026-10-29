@@ -1,0 +1,16 @@
+{% from "_tags.html" import tags, attack, outcome, internal %}
+{% for a in alerts %}
+<tr>
+  <td><span class="sev sev-{{ a.severity }}">{{ a.severity }}</span></td>
+  <td><a class="rowlink" href="/alerts/{{ a.id }}">{{ tags(a) }}</a></td>
+  <td>{{ attack(a) }}</td>
+  <td class="nowrap"><a class="mono" href="/?ip={{ a.src_ip }}">{{ a.src_ip }}</a>{{ internal(a) }}</td>
+  <td class="nowrap">{% if a.campaign_id %}<a href="/campaigns?open={{ a.campaign_id }}#c{{ a.campaign_id }}">#{{ a.campaign_id }} · {{ a.campaign_ips }} IPs</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+  <td>{{ outcome(a) }}</td>
+  <td class="num">{{ a.event_count }}</td>
+  <td class="mono nowrap">{{ a.first_seen | ts }}</td>
+  <td class="mono nowrap">{{ a.last_seen | ts }}</td>
+</tr>
+{% else %}
+<tr><td colspan="9" class="empty">No alerts match these filters.</td></tr>
+{% endfor %}

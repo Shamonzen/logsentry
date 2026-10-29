@@ -1,0 +1,2 @@
+# vendored, minified third-party code
+*.min.js

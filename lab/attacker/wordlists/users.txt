@@ -1,0 +1,6 @@
+admin
+root
+oracle
+postgres
+ubuntu
+devops

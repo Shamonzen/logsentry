@@ -1,0 +1,44 @@
+# LogSentry dashboard: read-only view of the alerts database.
+# It has no login, so it listens on 127.0.0.1 only: reach it with
+# `ssh -L 8000:127.0.0.1:8000 <server>` and open http://127.0.0.1:8000.
+[Unit]
+Description=LogSentry dashboard (read-only, localhost only)
+After=logsentry-tail.service
+
+[Service]
+User=logsentry
+Group=logsentry
+# the database is opened read-only, but SQLite's WAL mode still writes its -shm file here
+StateDirectory=logsentry
+ExecStart=/opt/logsentry/.venv/bin/logsentry web \
+    --db /var/lib/logsentry/logsentry.db --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# only local clients, even if --host is ever changed
+IPAddressAllow=localhost
+IPAddressDeny=any
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+
+[Install]
+WantedBy=multi-user.target

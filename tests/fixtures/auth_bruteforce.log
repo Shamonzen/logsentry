@@ -1,0 +1,30 @@
+2026-10-22T14:03:00.100000+00:00 target sshd-session[4100]: Failed password for root from 203.0.113.7 port 51000 ssh2
+2026-10-22T14:03:00.100000+00:00 target sshd-session[4100]: Connection closed by authenticating user root 203.0.113.7 port 51000 [preauth]
+2026-10-22T14:03:04.107919+00:00 target sshd-session[4101]: Invalid user admin from 203.0.113.7 port 51001
+2026-10-22T14:03:04.107919+00:00 target sshd-session[4101]: Failed password for invalid user admin from 203.0.113.7 port 51001 ssh2
+2026-10-22T14:03:04.107919+00:00 target sshd-session[4101]: Connection closed by authenticating user admin 203.0.113.7 port 51001 [preauth]
+2026-10-22T14:03:08.115838+00:00 target sshd-session[4102]: Failed password for root from 203.0.113.7 port 51002 ssh2
+2026-10-22T14:03:08.115838+00:00 target sshd-session[4102]: Connection closed by authenticating user root 203.0.113.7 port 51002 [preauth]
+2026-10-22T14:03:12.123757+00:00 target sshd-session[4103]: Invalid user oracle from 203.0.113.7 port 51003
+2026-10-22T14:03:12.123757+00:00 target sshd-session[4103]: Failed password for invalid user oracle from 203.0.113.7 port 51003 ssh2
+2026-10-22T14:03:12.123757+00:00 target sshd-session[4103]: Connection closed by authenticating user oracle 203.0.113.7 port 51003 [preauth]
+2026-10-22T14:03:16.131676+00:00 target sshd-session[4104]: Failed password for root from 203.0.113.7 port 51004 ssh2
+2026-10-22T14:03:16.131676+00:00 target sshd-session[4104]: Connection closed by authenticating user root 203.0.113.7 port 51004 [preauth]
+2026-10-22T14:03:20.139595+00:00 target sshd-session[4105]: Invalid user test from 203.0.113.7 port 51005
+2026-10-22T14:03:20.139595+00:00 target sshd-session[4105]: Failed password for invalid user test from 203.0.113.7 port 51005 ssh2
+2026-10-22T14:03:20.139595+00:00 target sshd-session[4105]: Connection closed by authenticating user test 203.0.113.7 port 51005 [preauth]
+2026-10-22T14:03:24.147514+00:00 target sshd-session[4106]: Failed password for root from 203.0.113.7 port 51006 ssh2
+2026-10-22T14:03:24.147514+00:00 target sshd-session[4106]: Connection closed by authenticating user root 203.0.113.7 port 51006 [preauth]
+2026-10-22T14:03:28.155433+00:00 target sshd-session[4107]: Invalid user ubuntu from 203.0.113.7 port 51007
+2026-10-22T14:03:28.155433+00:00 target sshd-session[4107]: Failed password for invalid user ubuntu from 203.0.113.7 port 51007 ssh2
+2026-10-22T14:03:28.155433+00:00 target sshd-session[4107]: Connection closed by authenticating user ubuntu 203.0.113.7 port 51007 [preauth]
+2026-10-22T14:03:32.163352+00:00 target sshd-session[4108]: Failed password for root from 203.0.113.7 port 51008 ssh2
+2026-10-22T14:03:32.163352+00:00 target sshd-session[4108]: Connection closed by authenticating user root 203.0.113.7 port 51008 [preauth]
+2026-10-22T14:03:36.171271+00:00 target sshd-session[4109]: Invalid user admin from 203.0.113.7 port 51009
+2026-10-22T14:03:36.171271+00:00 target sshd-session[4109]: Failed password for invalid user admin from 203.0.113.7 port 51009 ssh2
+2026-10-22T14:03:36.171271+00:00 target sshd-session[4109]: Connection closed by authenticating user admin 203.0.113.7 port 51009 [preauth]
+2026-10-22T14:03:40.179190+00:00 target sshd-session[4110]: Failed password for root from 203.0.113.7 port 51010 ssh2
+2026-10-22T14:03:40.179190+00:00 target sshd-session[4110]: Connection closed by authenticating user root 203.0.113.7 port 51010 [preauth]
+2026-10-22T14:03:44.187109+00:00 target sshd-session[4111]: Invalid user pi from 203.0.113.7 port 51011
+2026-10-22T14:03:44.187109+00:00 target sshd-session[4111]: Failed password for invalid user pi from 203.0.113.7 port 51011 ssh2
+2026-10-22T14:03:44.187109+00:00 target sshd-session[4111]: Connection closed by authenticating user pi 203.0.113.7 port 51011 [preauth]

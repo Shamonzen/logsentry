@@ -1,0 +1,65 @@
+# LogSentry lab. `make lab` starts it; the dashboard is http://127.0.0.1:8000.
+# The `lab` network is internal (no route to the internet); only the target (and, from
+# milestone 11, the attacker) sit on it. LogSentry itself never joins it.
+name: logsentry
+
+x-logsentry: &logsentry
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+  image: logsentry:dev
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs: [/tmp]
+  restart: unless-stopped
+
+services:
+  target:
+    build: lab/target
+    hostname: target
+    environment:
+      LAB_PASSWORD: ${LAB_PASSWORD:?copy .env.example to .env}
+    networks: [lab]
+    volumes:
+      - logs:/var/log/lab
+
+  attacker:
+    build: lab/attacker
+    # `profiles` keeps it out of `up`: it only runs via `make attack`
+    # (docker compose run --rm attacker). It sits on the internal lab network, nowhere else.
+    profiles: [attack]
+    environment:
+      LAB_PASSWORD: ${LAB_PASSWORD:?copy .env.example to .env}
+    networks: [lab]
+    depends_on: [target]
+
+  logsentry-tail:
+    <<: *logsentry
+    command: [tail, --sshd, /logs/auth.log, --nginx, /logs/nginx_access.log, --db, /data/logsentry.db]
+    # Reads logs and writes the DB; it needs no network at all.
+    network_mode: none
+    volumes:
+      - logs:/logs:ro
+      - data:/data
+
+  logsentry-web:
+    <<: *logsentry
+    command: [web, --host, 0.0.0.0, --db, /data/logsentry.db]
+    networks: [frontend]
+    ports:
+      - "127.0.0.1:8000:8000"
+    # The DB connection is read-only (mode=ro), but SQLite WAL readers still write the -shm
+    # file, so the volume itself can't be mounted :ro.
+    volumes:
+      - data:/data
+    depends_on: [logsentry-tail]
+
+networks:
+  lab:
+    internal: true
+  frontend: {}
+
+volumes:
+  logs: {}
+  data: {}

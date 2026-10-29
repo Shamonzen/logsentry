@@ -1,0 +1,50 @@
+# LogSentry detector: follows the sshd and nginx logs and writes alerts to SQLite.
+# The only process that writes the database. Install steps: README.md, "On your own server".
+[Unit]
+Description=LogSentry detector (follows the sshd and nginx logs)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=logsentry
+Group=logsentry
+# adm can read /var/log/auth.log and /var/log/nginx/*.log on Debian and Ubuntu
+SupplementaryGroups=adm
+StateDirectory=logsentry
+# optional: LOGSENTRY_NTFY_URL=https://ntfy.sh/<your topic> to push HIGH alerts
+EnvironmentFile=-/etc/logsentry/logsentry.env
+# a log file that doesn't exist (no nginx installed) is skipped until it appears
+ExecStart=/opt/logsentry/.venv/bin/logsentry tail \
+    --sshd /var/log/auth.log --nginx /var/log/nginx/access.log \
+    --config /opt/logsentry/config/rules.yaml --db /var/lib/logsentry/logsentry.db
+# tail exits cleanly on SIGINT (Ctrl+C) instead of being killed mid-poll
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+# Log lines are attacker-controlled, so the process gets as little as possible.
+# Network stays on for ntfy; files are read-only except the state directory.
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+#Software: Microsoft Internet Information Services 10.0
+#Version: 1.0
+#Date: 2026-10-22 09:00:00
+#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query s-port cs-username c-ip cs(User-Agent) sc-status sc-substatus sc-win32-status time-taken
+2026-10-22 09:01:12 192.0.2.10 GET / - 80 - 198.51.100.20 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64) 200 0 0 15
+2026-10-22 09:01:12 192.0.2.10 GET /favicon.ico - 80 - 198.51.100.20 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64) 404 0 2 1
+2026-10-22 09:01:30 192.0.2.10 GET /login.aspx next=https://www.example.test/account 80 - 198.51.100.20 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64) 200 0 0 31
+2026-10-22 09:02:05 192.0.2.10 POST /login.aspx - 80 bob 198.51.100.20 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64) 302 0 0 40
+2026-10-22 09:03:00 192.0.2.10 GET /healthz - 80 - 2001:db8::20 - 200 0 0 2

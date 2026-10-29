@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "_tags.html" import tags, attack, outcome, internal, cwe, technique %}
+{% block title %}{{ alert.rule_name }} · {{ alert.src_ip }} · LogSentry{% endblock %}
+{% block content %}
+<p><a href="/">← All alerts</a></p>
+<section class="card head">
+  <h1><span class="sev sev-{{ alert.severity }}">{{ alert.severity }}</span> {{ tags(alert) }}</h1>
+  <p>{{ alert.summary }}</p>
+  <dl class="facts">
+    <dt>Source IP</dt><dd><a class="mono" href="/?ip={{ alert.src_ip }}">{{ alert.src_ip }}</a>{{ internal(alert) }}</dd>
+    <dt>ATT&amp;CK</dt><dd>{{ attack(alert) }} <span class="muted">{{ alert.tactic | replace(", ", " → ") if alert.techniques else alert.tactic }}</span></dd>
+    <dt>Outcome</dt><dd>{{ outcome(alert) }}</dd>
+    <dt>Events</dt><dd>{{ alert.event_count }}</dd>
+    <dt>First seen</dt><dd class="mono">{{ alert.first_seen | ts }}</dd>
+    <dt>Last seen</dt><dd class="mono">{{ alert.last_seen | ts }}</dd>
+    <dt>Campaign</dt><dd>{% if campaign %}<a href="/campaigns?open={{ campaign.id }}#c{{ campaign.id }}">#{{ campaign.id }}</a> · {{ campaign.subnet }} · {{ campaign.ip_count }} IPs · {{ campaign.first_seen | ts }} → {{ campaign.last_seen | ts }}{% else %}<span class="muted">none: no other IP from {{ subnet }} had alerts within the campaign window (30 min) of this one</span>{% endif %}</dd>
+  </dl>
+</section>
+
+{% if alert.results %}
+<h2>Per attack type</h2>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Attack type</th><th>Weakness</th><th>Outcome</th><th>Confidence</th><th>Severity</th><th>Led to</th></tr></thead>
+  <tbody>
+  {% for r in alert.results %}
+    <tr>
+      <td><span class="tag res-{{ r.result }}">{{ r.name }}</span></td>
+      <td>{% if r.cwe %}{{ cwe(r.cwe) }}{% else %}<span class="muted">—</span>{% endif %}</td>
+      <td><span class="pill out-{{ r.result }}">{{ r.result }}</span></td>
+      <td>{{ r.confidence or "—" }}</td>
+      <td><span class="sev sev-{{ r.severity }}">{{ r.severity }}</span></td>
+      <td>{% for id in r.follow_on %}{% for t in alert.techniques if t.id == id %}{{ technique(t) }} <span class="muted">{{ t.name }}</span>{% endfor %}{% if not loop.last %}<br>{% endif %}{% else %}<span class="muted">—</span>{% endfor %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="muted legend">The alert's severity is the highest of these{% if alert.internal %}, +1 because the source is internal{% endif %}.</p>
+{% endif %}
+
+{% if timeline %}
+<h2>Timeline</h2>
+<figure class="timeline">
+  <svg viewBox="0 0 {{ timeline_width }} 40" role="img" aria-label="Requests over time, from first to last seen">
+    <line x1="10" y1="20" x2="{{ timeline_width - 10 }}" y2="20" class="axis"></line>
+    {% for d in timeline %}<circle cx="{{ d.x }}" cy="20" r="6" class="dot dot-{{ d.status }}"><title>{{ d.label }}</title></circle>{% endfor %}
+  </svg>
+  <figcaption class="muted"><span class="mono">{{ alert.first_seen | ts }}</span><span>dots: <span class="key dot-ok">2xx</span> <span class="key dot-redirect">3xx</span> <span class="key dot-error">4xx/5xx</span></span><span class="mono">{{ alert.last_seen | ts }}</span></figcaption>
+</figure>
+{% endif %}
+
+{% if alert.matches %}
+<h2>Matched requests{% if alert.matches | length == 50 %} <span class="muted">(first 50)</span>{% endif %}</h2>
+<div class="tablewrap">
+<table class="matches">
+  <thead><tr><th>Time</th><th>Status</th><th>Type</th><th>Request (matched part highlighted)</th><th>User-Agent</th></tr></thead>
+  <tbody>
+  {% for m in alert.matches %}
+    <tr>
+      <td class="mono nowrap">{{ m.ts | ts }}</td>
+      <td><span class="pill st-{{ m.http_status | status_class }}">{{ m.http_status }}</span></td>
+      <td><span class="tag" title="pattern {{ m.pattern }}">{{ m.name or m.category }}</span></td>
+      {# each part is escaped on its own; partition() can't take an empty separator #}
+      {% set before, hit, after = (m.request or "").partition(m.matched) if m.matched else (m.request or "", "", "") %}
+      <td class="mono req">{% if hit %}{{ before }}<mark>{{ hit }}</mark>{{ after }}{% elif m.request %}{{ m.request }} <span class="muted">(matched in User-Agent: <mark>{{ m.matched }}</mark>)</span>{% else %}<mark>{{ m.matched }}</mark>{% endif %}</td>
+      <td class="ua">{{ m.user_agent or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+
+{% if alert.outcome %}
+<h2>Outcome evidence <span class="muted">(Apache error_log; times are the server's local time)</span></h2>
+<pre>{% for line in alert.outcome_evidence %}{{ line }}
+{% endfor %}</pre>
+{% endif %}
+<h2>Raw log lines</h2>
+<pre>{% for line in alert.evidence %}{{ line }}
+{% endfor %}</pre>
+{% endblock %}
